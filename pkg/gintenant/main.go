@@ -20,6 +20,8 @@ func main() {
 		log.Panicln(err)
 	}
 
+	defer db.Close()
+
 	tenant, err := postgres.NewMultiTenant(db.DB())
 	if err != nil {
 		log.Panicln(err)

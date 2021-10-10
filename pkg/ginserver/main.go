@@ -20,6 +20,8 @@ func main() {
 		log.Panicln(err)
 	}
 
+	defer db.Close()
+
 	formatRepository, err := format.New(db)
 	if err != nil {
 		log.Panicln(err)
