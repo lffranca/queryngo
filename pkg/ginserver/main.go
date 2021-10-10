@@ -58,7 +58,7 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK, data)
+		c.Data(http.StatusOK, "application/json", data)
 	})
 
 	if err := router.Run(fmt.Sprintf(":%s", os.Getenv("API_PORT"))); err != nil {

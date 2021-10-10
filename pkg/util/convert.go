@@ -1,5 +1,7 @@
 package util
 
+import "encoding/json"
+
 func InterfaceToFloat(val interface{}) float64 {
 	var final float64
 
@@ -66,4 +68,13 @@ func InterfaceToInt(val interface{}) int {
 	}
 
 	return final
+}
+
+func ToJSON(data interface{}) string {
+	jsonResult, err := json.Marshal(data)
+	if err != nil {
+		return ""
+	}
+
+	return string(jsonResult)
 }

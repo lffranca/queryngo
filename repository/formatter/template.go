@@ -18,6 +18,7 @@ func (repo *formatterTemplate) Transform(ctx context.Context, templateData []byt
 		"concatArrayString": util.ConcatArrayString,
 		"toFloat":           util.InterfaceToFloat,
 		"toInt":             util.InterfaceToInt,
+		"toJSON":            util.ToJSON,
 		"toArrayString":     util.InterfaceToArrayString,
 		"UniqueString":      util.UniqueString,
 	}).Parse(string(templateData))
