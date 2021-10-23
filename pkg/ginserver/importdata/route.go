@@ -6,6 +6,6 @@ import (
 	"github.com/lffranca/queryngo/pkg/postgres"
 )
 
-func Route(app *gin.RouterGroup, db *postgres.Client, awsClient *gaws.Client) {
+func RouteMultiTenant(app *gin.RouterGroup, db *postgres.Client, awsClient *gaws.Client) {
 	app.POST("", importDataPOST(db, awsClient))
 }

@@ -27,7 +27,10 @@ func New(conn *string) (*Client, error) {
 	client.db = db
 	client.common.client = client
 	client.File = (*FileService)(&client.common)
+	client.Template = (*TemplateService)(&client.common)
 	client.Querying = (*QueryingService)(&client.common)
+
+	// domain services
 	client.SaveFileKeyImportData = (*SaveFileKeyService)(&client.common)
 
 	return client, nil
@@ -41,6 +44,7 @@ type Client struct {
 	db                    *sql.DB
 	common                service
 	File                  *FileService
+	Template              *TemplateService
 	Querying              querying.AbstractQuerying
 	SaveFileKeyImportData importdata.AbstractDatabase
 }

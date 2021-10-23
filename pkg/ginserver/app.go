@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lffranca/queryngo/pkg/gaws"
 	"github.com/lffranca/queryngo/pkg/ginserver/importdata"
+	"github.com/lffranca/queryngo/pkg/ginserver/querying"
 	"github.com/lffranca/queryngo/pkg/postgres"
 )
 
@@ -35,9 +36,12 @@ type Server struct {
 func (pkg *Server) routes() {
 	v1 := pkg.app.Group("/v1")
 	{
+		querying.Route(v1.Group("/querying"), pkg.db)
+
 		multiTenant := v1.Group("/multi-tenancy")
 		{
-			importdata.Route(multiTenant.Group("/import-data"), pkg.db, pkg.aws)
+			importdata.RouteMultiTenant(multiTenant.Group("/import-data"), pkg.db, pkg.aws)
+			querying.RouteMultiTenant(multiTenant.Group("/querying"), pkg.db)
 		}
 	}
 }
