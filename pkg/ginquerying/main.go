@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	module "github.com/lffranca/queryngo/domain/querying"
+	"github.com/lffranca/queryngo/pkg/formatter"
 	"github.com/lffranca/queryngo/pkg/postgres"
-	"github.com/lffranca/queryngo/repository/format"
-	"github.com/lffranca/queryngo/repository/formatter"
 	"log"
 	"net/http"
 	"os"
@@ -21,14 +20,12 @@ func main() {
 
 	defer db.Close()
 
-	formatRepository, err := format.New(db)
+	format, err := formatter.New()
 	if err != nil {
 		log.Panicln(err)
 	}
 
-	formatterRepository := formatter.NewTemplate()
-
-	mod, err := module.New(formatRepository, formatterRepository, db.Querying)
+	mod, err := module.New(db.Template, format.Template, db.Querying)
 	if err != nil {
 		log.Panicln(err)
 	}

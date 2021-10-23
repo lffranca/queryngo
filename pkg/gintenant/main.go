@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	module "github.com/lffranca/queryngo/domain/querying"
+	"github.com/lffranca/queryngo/pkg/formatter"
 	"github.com/lffranca/queryngo/pkg/postgres"
-	"github.com/lffranca/queryngo/repository/format"
-	"github.com/lffranca/queryngo/repository/formatter"
 	"log"
 	"net/http"
 	"os"
@@ -26,12 +25,10 @@ func main() {
 		log.Panicln(err)
 	}
 
-	formatRepository, err := format.New(db)
+	format, err := formatter.New()
 	if err != nil {
 		log.Panicln(err)
 	}
-
-	formatterRepository := formatter.NewTemplate()
 
 	router := gin.Default()
 	router.POST("/", func(c *gin.Context) {
@@ -61,7 +58,7 @@ func main() {
 			return
 		}
 
-		mod, err := module.New(formatRepository, formatterRepository, tenantDB.Querying)
+		mod, err := module.New(db.Template, format.Template, tenantDB.Querying)
 		if err != nil {
 			log.Println("module.New: ", err)
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
