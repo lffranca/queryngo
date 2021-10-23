@@ -6,12 +6,14 @@ import (
 )
 
 type connectionDB struct {
-	Host     sql.NullString
-	Port     sql.NullInt64
-	Username sql.NullString
-	Password sql.NullString
-	Database sql.NullString
-	Encrypt  sql.NullString
+	Host        sql.NullString
+	Port        sql.NullInt64
+	Username    sql.NullString
+	Password    sql.NullString
+	Database    sql.NullString
+	Encrypt     sql.NullString
+	CompanyID   sql.NullInt64
+	CompanyName sql.NullString
 }
 
 func (item *connectionDB) String() *string {

@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	module "github.com/lffranca/queryngo/module/querying"
+	module "github.com/lffranca/queryngo/domain/querying"
 	"github.com/lffranca/queryngo/pkg/postgres"
 	"github.com/lffranca/queryngo/repository/format"
 	"github.com/lffranca/queryngo/repository/formatter"
-	"github.com/lffranca/queryngo/repository/querying"
 	"log"
 	"net/http"
 	"os"
@@ -27,14 +26,9 @@ func main() {
 		log.Panicln(err)
 	}
 
-	queryingRepository, err := querying.NewPostgres(db)
-	if err != nil {
-		log.Panicln(err)
-	}
-
 	formatterRepository := formatter.NewTemplate()
 
-	mod, err := module.New(formatRepository, formatterRepository, queryingRepository)
+	mod, err := module.New(formatRepository, formatterRepository, db.Querying)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -43,19 +37,19 @@ func main() {
 	router.POST("/", func(c *gin.Context) {
 		var query queryStringBind
 		if err := c.ShouldBindQuery(&query); err != nil {
-			log.Println(err)
+			log.Println("c.ShouldBindQuery: ", err)
 			c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 			return
 		}
 
 		var body interface{}
 		if err := c.ShouldBindJSON(&body); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
+			log.Println("[WARNING] c.ShouldBindJSON: ", err)
 		}
 
 		data, err := mod.Execute(c.Request.Context(), query.QueryID, query.FormatID, body)
 		if err != nil {
+			log.Println("mod.Execute: ", err)
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}

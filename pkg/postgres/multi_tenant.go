@@ -13,16 +13,16 @@ func NewMultiTenant(db *sql.DB) (*multiTenant, error) {
 
 	return &multiTenant{
 		db:  db,
-		dbs: make(map[string]*postgres),
+		dbs: make(map[string]*Client),
 	}, nil
 }
 
 type multiTenant struct {
 	db  *sql.DB
-	dbs map[string]*postgres
+	dbs map[string]*Client
 }
 
-func (post *multiTenant) Client(ctx context.Context, sub *string) (*postgres, error) {
+func (post *multiTenant) Client(ctx context.Context, sub *string) (*Client, error) {
 	db, ok := post.dbs[*sub]
 	if ok {
 		return db, nil
@@ -38,7 +38,7 @@ func (post *multiTenant) Client(ctx context.Context, sub *string) (*postgres, er
 	return db, nil
 }
 
-func (post *multiTenant) getDB(ctx context.Context, sub *string) (*postgres, error) {
+func (post *multiTenant) getDB(ctx context.Context, sub *string) (*Client, error) {
 	query := `
 		select
 			d.host,
@@ -47,8 +47,8 @@ func (post *multiTenant) getDB(ctx context.Context, sub *string) (*postgres, err
 			d.password,
 			d.database,
 			d.encrypt
-		from db_analytics as d
-		inner join profile p on d.company_id = p.company_id
+		from public.db_analytics as d
+		inner join public.profile p on d.company_id = p.company_id
 		where p.cognito_sub = $1
 		limit 1
 		;
