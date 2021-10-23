@@ -1,4 +1,4 @@
-package entity
+package domain
 
 func NewResponseData(columns, columnTypes []string, rows [][]interface{}) *ResponseData {
 	return &ResponseData{

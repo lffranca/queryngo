@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-func New(format Format, formatter Formatter, query Querying) (*querying, error) {
+func New(format Format, formatter Formatter, query AbstractQuerying) (*querying, error) {
 	if format == nil || formatter == nil || query == nil {
 		return nil, errors.New("invalid params")
 	}
@@ -20,7 +20,7 @@ func New(format Format, formatter Formatter, query Querying) (*querying, error) 
 type querying struct {
 	format    Format
 	formatter Formatter
-	querying  Querying
+	querying  AbstractQuerying
 }
 
 func (mod *querying) Execute(ctx context.Context, queryID, formatID *string, value interface{}) ([]byte, error) {
