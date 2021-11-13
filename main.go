@@ -1,49 +1,86 @@
 package main
 
 import (
+	"fmt"
+	"github.com/lffranca/queryngo/pkg/config"
+	"github.com/lffranca/queryngo/pkg/formatter"
 	"github.com/lffranca/queryngo/pkg/gaws"
-	"github.com/lffranca/queryngo/pkg/ginserver"
+	"github.com/lffranca/queryngo/pkg/guuid"
 	"github.com/lffranca/queryngo/pkg/postgres"
+	"github.com/lffranca/queryngo/pkg/server"
 	"log"
-	"os"
+	"sync"
 )
 
 func main() {
-	connString := os.Getenv("DB_CONN_STRING")
-	db, err := postgres.New(&connString)
+	conf, err := config.New(nil)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	wg := &sync.WaitGroup{}
+	for _, client := range conf.Servers {
+		wg.Add(1)
+		go newClientServer(wg, client)
+	}
+
+	wg.Wait()
+}
+
+func newClientServer(wgParent *sync.WaitGroup, client config.Server) {
+	defer wgParent.Done()
+
+	formatterClient, err := formatter.New()
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	db, err := postgres.New(&client.Database)
 	if err != nil {
 		log.Panicln(err)
 	}
 
 	defer db.Close()
 
-	awsBucket := os.Getenv("AWS_BUCKET")
-	awsClient, err := gaws.New(&awsBucket)
-	if err != nil {
-		log.Panicln(err)
-	}
-
-	port := os.Getenv("API_PORT")
-	server, err := ginserver.New(db, awsClient, &port)
-	if err != nil {
-		log.Panicln(err)
-	}
-
-	if err := server.Run(); err != nil {
-		log.Panicln(err)
-	}
-}
-
-func init() {
-	envs := []string{
-		"AWS_BUCKET",
-		"API_PORT",
-		"DB_CONN_STRING",
-	}
-
-	for _, env := range envs {
-		if _, ok := os.LookupEnv(env); !ok {
-			log.Panicf("env var is required: %s\n", env)
+	var storageRepository *gaws.StorageService
+	var uuidRepository *guuid.GenerateService
+	if client.Routes.ImportData.Enabled {
+		awsClient, err := gaws.New(&client.Routes.ImportData.Bucket)
+		if err != nil {
+			log.Panicln(err)
 		}
+
+		storageRepository = awsClient.Storage
+
+		uuidClient, err := guuid.New()
+		if err != nil {
+			log.Panicln(err)
+		}
+
+		uuidRepository = uuidClient.GenerateImportData
+	}
+
+	app, err := server.New(&server.Options{
+		Prefix:              &client.Prefix,
+		QueryingRepository:  db.Querying,
+		TemplateRepository:  db.Template,
+		FormatterRepository: formatterClient.Template,
+		StorageRepository:   storageRepository,
+		FileRepository:      db.File,
+		UUIDRepository:      uuidRepository,
+		Routes: &server.RoutesOptions{
+			Querying: server.QueryingRouteOptions{
+				Enabled: client.Routes.Querying.Enabled,
+			},
+			ImportData: server.ImportDataRouteOptions{
+				Enabled:  client.Routes.ImportData.Enabled,
+				Bucket:   client.Routes.ImportData.Bucket,
+				BasePath: client.Routes.ImportData.BasePath,
+			},
+		},
+	})
+
+	if err := app.Run(fmt.Sprintf(":%s", client.Port)); err != nil {
+		log.Panicln(err)
 	}
 }

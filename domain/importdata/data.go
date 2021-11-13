@@ -7,7 +7,7 @@ import (
 )
 
 type AbstractDatabase interface {
-	SaveFileKey(ctx context.Context, data *domain.FileInfo) error
+	Save(ctx context.Context, data *domain.FileInfo) error
 }
 
 type AbstractGenerate interface {

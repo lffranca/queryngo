@@ -1,7 +1,7 @@
-package importdata
+package presenter
 
 import "mime/multipart"
 
-type formBody struct {
+type ImportDataBody struct {
 	File *multipart.FileHeader `form:"file" binding:"required"`
 }

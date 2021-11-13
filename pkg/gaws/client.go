@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/lffranca/queryngo/domain"
-	"github.com/lffranca/queryngo/domain/importdata"
 	"io"
 )
 
@@ -19,7 +18,7 @@ func New(bucket *string) (*Client, error) {
 	client := new(Client)
 	client.bucket = bucket
 	client.common.client = client
-	client.StorageImportData = (*StorageService)(&client.common)
+	client.Storage = (*StorageService)(&client.common)
 
 	return client, nil
 }
@@ -29,9 +28,9 @@ type service struct {
 }
 
 type Client struct {
-	bucket            *string
-	common            service
-	StorageImportData importdata.AbstractStorage
+	bucket  *string
+	common  service
+	Storage *StorageService
 }
 
 func (pkg *Client) upload(ctx context.Context, key, contentType *string, data io.Reader) error {

@@ -2,7 +2,6 @@ package guuid
 
 import (
 	"github.com/google/uuid"
-	"github.com/lffranca/queryngo/domain/importdata"
 )
 
 func New() (*Client, error) {
@@ -19,7 +18,7 @@ type service struct {
 
 type Client struct {
 	common             service
-	GenerateImportData importdata.AbstractGenerate
+	GenerateImportData *GenerateService
 }
 
 func (pkg *Client) uuid() (*string, error) {

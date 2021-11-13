@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/lffranca/queryngo/domain/importdata"
-	"github.com/lffranca/queryngo/domain/querying"
 	"github.com/lffranca/queryngo/pkg/util"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
@@ -17,11 +15,15 @@ func New(conn *string) (*Client, error) {
 		return nil, errors.New("conn is required")
 	}
 
-	db, err := sql.Open("postgres", *conn)
+	db, err := newDB(conn)
 	if err != nil {
 		return nil, err
 	}
 
+	return NewClient(db)
+}
+
+func NewClient(db *sql.DB) (*Client, error) {
 	client := new(Client)
 
 	client.db = db
@@ -29,8 +31,6 @@ func New(conn *string) (*Client, error) {
 	client.File = (*FileService)(&client.common)
 	client.Template = (*TemplateService)(&client.common)
 	client.Querying = (*QueryingService)(&client.common)
-
-	// domain services
 	client.SaveFileKeyImportData = (*SaveFileKeyService)(&client.common)
 
 	return client, nil
@@ -45,8 +45,8 @@ type Client struct {
 	common                service
 	File                  *FileService
 	Template              *TemplateService
-	Querying              querying.AbstractQuerying
-	SaveFileKeyImportData importdata.AbstractDatabase
+	Querying              *QueryingService
+	SaveFileKeyImportData *SaveFileKeyService
 }
 
 func (pkg *Client) query(ctx context.Context, query string, variables []interface{}) (*sql.Rows, error) {
@@ -83,6 +83,6 @@ func (pkg *Client) DB() *sql.DB {
 
 func (pkg *Client) Close() {
 	if err := pkg.db.Close(); err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

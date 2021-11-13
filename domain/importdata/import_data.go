@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-func New(storage AbstractStorage, db AbstractDatabase, generate AbstractGenerate, basePath *string) (*importData, error) {
-	if storage == nil || db == nil || generate == nil || basePath == nil {
+func New(storage AbstractStorage, db AbstractDatabase, generate AbstractGenerate) (*importData, error) {
+	if storage == nil || db == nil || generate == nil {
 		return nil, errors.New("invalid params")
 	}
 
@@ -19,7 +19,6 @@ func New(storage AbstractStorage, db AbstractDatabase, generate AbstractGenerate
 		storage:  storage,
 		db:       db,
 		generate: generate,
-		basePath: basePath,
 	}, nil
 }
 
@@ -27,7 +26,6 @@ type importData struct {
 	storage  AbstractStorage
 	db       AbstractDatabase
 	generate AbstractGenerate
-	basePath *string
 }
 
 func (mod *importData) Import(ctx context.Context, fileName, contentType *string, fileSize *int, data io.Reader) error {
@@ -40,9 +38,7 @@ func (mod *importData) Import(ctx context.Context, fileName, contentType *string
 
 	key := fmt.Sprintf("%s%s", *uuid, extension)
 
-	path := fmt.Sprintf("%s/%s", *mod.basePath, key)
-
-	if err := mod.storage.Upload(ctx, &path, contentType, data); err != nil {
+	if err := mod.storage.Upload(ctx, &key, contentType, data); err != nil {
 		return err
 	}
 
@@ -51,13 +47,13 @@ func (mod *importData) Import(ctx context.Context, fileName, contentType *string
 		Name:         fileName,
 		Extension:    &extension,
 		Key:          &key,
-		Path:         &path,
+		Path:         &key,
 		Size:         fileSize,
 		ContentType:  contentType,
 		LastModified: &now,
 	}
 
-	if err := mod.db.SaveFileKey(ctx, fileInfo); err != nil {
+	if err := mod.db.Save(ctx, fileInfo); err != nil {
 		return err
 	}
 
