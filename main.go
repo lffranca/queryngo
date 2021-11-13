@@ -30,17 +30,22 @@ func main() {
 func newClientServer(wgParent *sync.WaitGroup, client config.Server) {
 	defer wgParent.Done()
 
-	formatterClient, err := formatter.New()
-	if err != nil {
-		log.Panicln(err)
-	}
-
 	db, err := postgres.New(&client.Database)
 	if err != nil {
 		log.Panicln(err)
 	}
 
 	defer db.Close()
+
+	var formatterRepository *formatter.TemplateService
+	if client.Routes.Querying.Enabled {
+		formatterClient, err := formatter.New()
+		if err != nil {
+			log.Panicln(err)
+		}
+
+		formatterRepository = formatterClient.Template
+	}
 
 	var storageRepository *gaws.StorageService
 	var uuidRepository *guuid.GenerateService
@@ -64,7 +69,7 @@ func newClientServer(wgParent *sync.WaitGroup, client config.Server) {
 		Prefix:              &client.Prefix,
 		QueryingRepository:  db.Querying,
 		TemplateRepository:  db.Template,
-		FormatterRepository: formatterClient.Template,
+		FormatterRepository: formatterRepository,
 		StorageRepository:   storageRepository,
 		FileRepository:      db.File,
 		UUIDRepository:      uuidRepository,
