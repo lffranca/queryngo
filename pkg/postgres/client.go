@@ -29,6 +29,7 @@ func NewClient(db *sql.DB) (*Client, error) {
 	client.db = db
 	client.common.client = client
 	client.File = (*FileService)(&client.common)
+	client.FileProcessed = (*FileProcessedService)(&client.common)
 	client.Template = (*TemplateService)(&client.common)
 	client.Querying = (*QueryingService)(&client.common)
 	client.SaveFileKeyImportData = (*SaveFileKeyService)(&client.common)
@@ -44,6 +45,7 @@ type Client struct {
 	db                    *sql.DB
 	common                service
 	File                  *FileService
+	FileProcessed         *FileProcessedService
 	Template              *TemplateService
 	Querying              *QueryingService
 	SaveFileKeyImportData *SaveFileKeyService

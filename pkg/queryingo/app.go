@@ -5,19 +5,19 @@ import (
 	"sync"
 )
 
-func Run() error {
+func Run() (err error) {
 	conf, err := config.New(nil)
 	if err != nil {
-		return err
+		return
 	}
 
 	wg := &sync.WaitGroup{}
 	for _, client := range conf.Servers {
 		wg.Add(1)
-		go serverClientRun(wg, client)
+		go clientRun(wg, client)
 	}
 
 	wg.Wait()
 
-	return err
+	return
 }

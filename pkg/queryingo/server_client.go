@@ -9,15 +9,8 @@ import (
 	"sync"
 )
 
-func serverClientRun(wgParent *sync.WaitGroup, client config.Server) {
+func serverClientRun(wgParent *sync.WaitGroup, client config.Server, db *postgres.Client) {
 	defer wgParent.Done()
-
-	db, err := postgres.New(&client.Database)
-	if err != nil {
-		log.Panicln(err)
-	}
-
-	defer db.Close()
 
 	queryingMod, err := serverQueryingRoute(client.Routes.Querying, db)
 	if err != nil {
