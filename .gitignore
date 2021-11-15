@@ -18,3 +18,5 @@
 
 **/*.yaml
 **/*.yml
+
+pkg/**/*_test.go
