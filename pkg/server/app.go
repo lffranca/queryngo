@@ -22,11 +22,7 @@ func New(options *Options) (*Server, error) {
 	server.ImportData = (*ImportDataService)(&server.common)
 
 	server.QueryingRepository = options.QueryingRepository
-	server.FormatterRepository = options.FormatterRepository
-	server.TemplateRepository = options.TemplateRepository
-	server.StorageRepository = options.StorageRepository
-	server.FileRepository = options.FileRepository
-	server.UUIDRepository = options.UUIDRepository
+	server.ImportDataRepository = options.ImportDataRepository
 
 	server.app = gin.Default()
 	server.routes()
@@ -35,18 +31,14 @@ func New(options *Options) (*Server, error) {
 }
 
 type Server struct {
-	common              service
-	app                 *gin.Engine
-	Prefix              *string
-	RoutesOptions       *RoutesOptions
-	Querying            *QueryingService
-	ImportData          *ImportDataService
-	QueryingRepository  QueryingRepository
-	FormatterRepository FormatterRepository
-	TemplateRepository  TemplateRepository
-	StorageRepository   StorageRepository
-	FileRepository      FileRepository
-	UUIDRepository      UUIDRepository
+	common               service
+	app                  *gin.Engine
+	Prefix               *string
+	RoutesOptions        *RoutesOptions
+	Querying             *QueryingService
+	ImportData           *ImportDataService
+	ImportDataRepository ImportDataRepository
+	QueryingRepository   QueryingRepository
 }
 
 func (pkg *Server) routes() {
@@ -55,14 +47,14 @@ func (pkg *Server) routes() {
 		if pkg.RoutesOptions.Querying.Enabled {
 			querying := v1.Group("/querying")
 			{
-				querying.POST("", pkg.Querying.queryingPOST())
+				querying.POST("", pkg.Querying.queryingPOST)
 			}
 		}
 
 		if pkg.RoutesOptions.ImportData.Enabled {
 			importData := v1.Group("/import-data")
 			{
-				importData.POST("", pkg.ImportData.importDataPOST())
+				importData.POST("", pkg.ImportData.importDataPOST)
 			}
 		}
 	}

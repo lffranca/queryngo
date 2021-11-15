@@ -1,4 +1,4 @@
-package server
+package processedfile
 
 import (
 	"context"
@@ -6,5 +6,5 @@ import (
 )
 
 type FileRepository interface {
-	Save(ctx context.Context, data *domain.FileInfo) error
+	Update(ctx context.Context, item *domain.FileInfo) error
 }

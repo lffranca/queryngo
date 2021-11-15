@@ -16,4 +16,5 @@ type FileInfo struct {
 	Prefix       *string           `json:"prefix,omitempty" yaml:"prefix,omitempty"`
 	Bucket       *string           `json:"bucket,omitempty" yaml:"bucket,omitempty"`
 	Results      []*FileInfoResult `json:"result,omitempty" yaml:"result,omitempty"`
+	Status       FileStatus        `json:"status,omitempty" yaml:"status,omitempty"`
 }

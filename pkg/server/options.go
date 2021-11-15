@@ -18,14 +18,10 @@ type RoutesOptions struct {
 }
 
 type Options struct {
-	Prefix              *string
-	Routes              *RoutesOptions
-	QueryingRepository  QueryingRepository
-	FormatterRepository FormatterRepository
-	TemplateRepository  TemplateRepository
-	StorageRepository   StorageRepository
-	FileRepository      FileRepository
-	UUIDRepository      UUIDRepository
+	Prefix               *string
+	Routes               *RoutesOptions
+	QueryingRepository   QueryingRepository
+	ImportDataRepository ImportDataRepository
 }
 
 func (pkg *Options) validate() error {
@@ -42,30 +38,14 @@ func (pkg *Options) validate() error {
 			return errors.New("base path is required in import data route")
 		}
 
-		if pkg.StorageRepository == nil {
-			return errors.New("StorageRepository is required in import data route")
-		}
-
-		if pkg.FileRepository == nil {
-			return errors.New("FileRepository is required in import data route")
-		}
-
-		if pkg.UUIDRepository == nil {
-			return errors.New("UUIDRepository is required in import data route")
+		if pkg.ImportDataRepository == nil {
+			return errors.New("ImportDataRepository is required in import data route")
 		}
 	}
 
 	if pkg.Routes.Querying.Enabled {
 		if pkg.QueryingRepository == nil {
 			return errors.New("QueryingRepository is required in querying route")
-		}
-
-		if pkg.FormatterRepository == nil {
-			return errors.New("FormatterRepository is required in querying route")
-		}
-
-		if pkg.TemplateRepository == nil {
-			return errors.New("TemplateRepository is required in querying route")
 		}
 	}
 

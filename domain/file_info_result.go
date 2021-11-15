@@ -10,4 +10,6 @@ type FileInfoResult struct {
 	Key         *string   `json:"key,omitempty" yaml:"key,omitempty"`
 	Size        *int      `json:"size,omitempty" yaml:"size,omitempty"`
 	ParentID    *int      `json:"parent_id,omitempty" yaml:"parent_id,omitempty"`
+	Bucket      *string   `json:"bucket,omitempty" yaml:"bucket,omitempty"`
+	Prefix      *string   `json:"prefix,omitempty" yaml:"prefix,omitempty"`
 }

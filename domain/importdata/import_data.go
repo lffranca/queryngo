@@ -10,25 +10,25 @@ import (
 	"time"
 )
 
-func New(storage AbstractStorage, db AbstractDatabase, generate AbstractGenerate) (*importData, error) {
+func New(storage AbstractStorage, db AbstractDatabase, generate AbstractGenerate) (*ImportData, error) {
 	if storage == nil || db == nil || generate == nil {
 		return nil, errors.New("invalid params")
 	}
 
-	return &importData{
+	return &ImportData{
 		storage:  storage,
 		db:       db,
 		generate: generate,
 	}, nil
 }
 
-type importData struct {
+type ImportData struct {
 	storage  AbstractStorage
 	db       AbstractDatabase
 	generate AbstractGenerate
 }
 
-func (mod *importData) Import(ctx context.Context, fileName, contentType *string, fileSize *int, data io.Reader) error {
+func (mod *ImportData) Import(ctx context.Context, fileName, contentType *string, fileSize *int, data io.Reader) error {
 	extension := filepath.Ext(*fileName)
 
 	uuid, err := mod.generate.UUID(ctx)
