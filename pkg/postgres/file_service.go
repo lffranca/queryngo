@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"github.com/lffranca/queryngo/domain"
 )
@@ -51,7 +52,11 @@ func (pkg *FileService) Update(ctx context.Context, data *domain.FileInfo) error
 	return nil
 }
 
-func (pkg *FileService) Save(ctx context.Context, data *domain.FileInfo) error {
+func (pkg *FileService) Save(ctx context.Context, data *domain.FileInfo) (*domain.FileInfo, error) {
+	if data == nil {
+		return nil, errors.New("data is required")
+	}
+
 	query := `
 		insert into storage.files (
 		   key,
@@ -64,10 +69,12 @@ func (pkg *FileService) Save(ctx context.Context, data *domain.FileInfo) error {
 		   prefix,
 		   bucket,
 		   status
-	   	) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+	   	) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	   	returning id;
 	`
 
-	if _, err := pkg.client.db.ExecContext(ctx, query,
+	var idSQL sql.NullInt64
+	if err := pkg.client.db.QueryRowContext(ctx, query,
 		data.Key,
 		data.Path,
 		data.Name,
@@ -78,9 +85,12 @@ func (pkg *FileService) Save(ctx context.Context, data *domain.FileInfo) error {
 		data.Prefix,
 		data.Bucket,
 		data.Status,
-	); err != nil {
-		return err
+	).Scan(&idSQL); err != nil {
+		return nil, err
 	}
 
-	return nil
+	id := int(idSQL.Int64)
+	data.ID = &id
+
+	return data, nil
 }

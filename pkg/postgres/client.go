@@ -32,7 +32,6 @@ func NewClient(db *sql.DB) (*Client, error) {
 	client.FileProcessed = (*FileProcessedService)(&client.common)
 	client.Template = (*TemplateService)(&client.common)
 	client.Querying = (*QueryingService)(&client.common)
-	client.SaveFileKeyImportData = (*SaveFileKeyService)(&client.common)
 
 	return client, nil
 }
@@ -42,13 +41,12 @@ type service struct {
 }
 
 type Client struct {
-	db                    *sql.DB
-	common                service
-	File                  *FileService
-	FileProcessed         *FileProcessedService
-	Template              *TemplateService
-	Querying              *QueryingService
-	SaveFileKeyImportData *SaveFileKeyService
+	db            *sql.DB
+	common        service
+	File          *FileService
+	FileProcessed *FileProcessedService
+	Template      *TemplateService
+	Querying      *QueryingService
 }
 
 func (pkg *Client) query(ctx context.Context, query string, variables []interface{}) (*sql.Rows, error) {

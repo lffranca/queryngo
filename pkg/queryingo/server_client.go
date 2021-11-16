@@ -3,13 +3,14 @@ package queryingo
 import (
 	"fmt"
 	"github.com/lffranca/queryngo/pkg/config"
+	"github.com/lffranca/queryngo/pkg/gkafka"
 	"github.com/lffranca/queryngo/pkg/postgres"
 	"github.com/lffranca/queryngo/pkg/server"
 	"log"
 	"sync"
 )
 
-func serverClientRun(wgParent *sync.WaitGroup, client config.Server, db *postgres.Client) {
+func serverClientRun(wgParent *sync.WaitGroup, client config.Server, db *postgres.Client, broker *gkafka.Server) {
 	defer wgParent.Done()
 
 	queryingMod, err := serverQueryingRoute(client.Routes.Querying, db)
@@ -17,7 +18,7 @@ func serverClientRun(wgParent *sync.WaitGroup, client config.Server, db *postgre
 		log.Panicln(err)
 	}
 
-	importDataMod, err := serverImportDataRoute(client.Routes.ImportData, db)
+	importDataMod, err := serverImportDataRoute(client, db, broker)
 	if err != nil {
 		log.Panicln(err)
 	}

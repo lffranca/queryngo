@@ -27,7 +27,7 @@ func clientRun(wgParent *sync.WaitGroup, client config.Server) {
 	wg := &sync.WaitGroup{}
 
 	wg.Add(1)
-	go serverClientRun(wg, client, db)
+	go serverClientRun(wg, client, db, broker)
 
 	if broker != nil {
 		wg.Add(1)
