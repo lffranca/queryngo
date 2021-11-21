@@ -10,6 +10,11 @@ import (
 	"log"
 )
 
+var (
+	defaultOffset = 0
+	defaultLimit  = 20
+)
+
 func New(conn *string) (*Client, error) {
 	if conn == nil {
 		return nil, errors.New("conn is required")
