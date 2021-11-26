@@ -16,13 +16,15 @@ func New(options *Options) (*Server, error) {
 
 	server := new(Server)
 	server.common.Server = server
-	server.Prefix = options.Prefix
-	server.RoutesOptions = options.Routes
-	server.Querying = (*QueryingService)(&server.common)
-	server.ImportData = (*ImportDataService)(&server.common)
+	server.prefix = options.Prefix
+	server.routesOptions = options.Routes
+	server.querying = (*QueryingService)(&server.common)
+	server.importData = (*ImportDataService)(&server.common)
+	server.storage = (*StorageService)(&server.common)
 
-	server.QueryingRepository = options.QueryingRepository
-	server.ImportDataRepository = options.ImportDataRepository
+	server.queryingRepository = options.QueryingRepository
+	server.importDataRepository = options.ImportDataRepository
+	server.storageRepository = options.StorageRepository
 
 	server.app = gin.Default()
 	server.routes()
@@ -33,28 +35,40 @@ func New(options *Options) (*Server, error) {
 type Server struct {
 	common               service
 	app                  *gin.Engine
-	Prefix               *string
-	RoutesOptions        *RoutesOptions
-	Querying             *QueryingService
-	ImportData           *ImportDataService
-	ImportDataRepository ImportDataRepository
-	QueryingRepository   QueryingRepository
+	prefix               *string
+	routesOptions        *RoutesOptions
+	querying             *QueryingService
+	importData           *ImportDataService
+	storage              *StorageService
+	importDataRepository ImportDataRepository
+	queryingRepository   QueryingRepository
+	storageRepository    StorageRepository
 }
 
 func (pkg *Server) routes() {
 	v1 := pkg.app.Group("/v1")
 	{
-		if pkg.RoutesOptions.Querying.Enabled {
+		if pkg.routesOptions.Querying.Enabled {
 			querying := v1.Group("/querying")
 			{
-				querying.POST("", pkg.Querying.queryingPOST)
+				querying.POST("", pkg.querying.queryingPOST)
 			}
 		}
 
-		if pkg.RoutesOptions.ImportData.Enabled {
+		if pkg.routesOptions.ImportData.Enabled {
 			importData := v1.Group("/import-data")
 			{
-				importData.POST("", pkg.ImportData.importDataPOST)
+				importData.POST("", pkg.importData.importDataPOST)
+			}
+
+			storage := v1.Group("/storage")
+			{
+				storage.GET("/config", pkg.storage.listConfigGET)
+				storage.DELETE("/config", pkg.storage.configDELETE)
+				storage.POST("/config", pkg.storage.configPOST)
+				storage.GET("/content", pkg.storage.fileContentGET)
+				storage.GET("/processed", pkg.storage.listProcessedGET)
+				storage.GET("", pkg.storage.listGET)
 			}
 		}
 	}

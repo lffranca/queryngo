@@ -98,20 +98,20 @@ func (pkg *FileService) List(ctx context.Context, offset, limit *int, search *st
 
 	if search != nil {
 		argsCount++
-		query += fmt.Sprintf(" where name ilike %d ", argsCount)
+		query += fmt.Sprintf(" where name ilike $%d ", argsCount)
 		args = append(args, *search)
-	}
-
-	if limit != nil {
-		argsCount++
-		query += fmt.Sprintf(" limit %d ", argsCount)
-		args = append(args, *limit)
 	}
 
 	if offset != nil {
 		argsCount++
-		query += fmt.Sprintf(" offset %d ", argsCount)
+		query += fmt.Sprintf(" offset $%d ", argsCount)
 		args = append(args, *offset)
+	}
+
+	if limit != nil {
+		argsCount++
+		query += fmt.Sprintf(" limit $%d ", argsCount)
+		args = append(args, *limit)
 	}
 
 	rows, err := pkg.client.db.QueryContext(ctx, query, args...)
@@ -126,7 +126,7 @@ func (pkg *FileService) List(ctx context.Context, offset, limit *int, search *st
 	}()
 
 	var items []*domain.FileInfo
-	if rows.Next() {
+	for rows.Next() {
 		var itemDB model.FileInfo
 		if err := rows.Scan(
 			&itemDB.ID,

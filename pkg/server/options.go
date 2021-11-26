@@ -22,6 +22,7 @@ type Options struct {
 	Routes               *RoutesOptions
 	QueryingRepository   QueryingRepository
 	ImportDataRepository ImportDataRepository
+	StorageRepository    StorageRepository
 }
 
 func (pkg *Options) validate() error {
@@ -40,6 +41,10 @@ func (pkg *Options) validate() error {
 
 		if pkg.ImportDataRepository == nil {
 			return errors.New("ImportDataRepository is required in import data route")
+		}
+
+		if pkg.StorageRepository == nil {
+			return errors.New("StorageRepository param is required")
 		}
 	}
 

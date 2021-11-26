@@ -7,13 +7,8 @@ import (
 	"github.com/lffranca/queryngo/pkg/postgres"
 )
 
-func serverQueryingRoute(route config.QueryingRoute, db *postgres.Client) (*querying.Querying, error) {
+func serverQueryingRoute(route config.QueryingRoute, db *postgres.Client, formatterClient *formatter.Client) (*querying.Querying, error) {
 	if route.Enabled {
-		formatterClient, err := formatter.New()
-		if err != nil {
-			return nil, err
-		}
-
 		mod, err := querying.New(db.Template, formatterClient.Template, db.Querying)
 		if err != nil {
 			return nil, err

@@ -34,7 +34,7 @@ func (pkg *ImportDataService) importDataPOST(c *gin.Context) {
 	}
 
 	fileSize := int(fileItem.File.Size)
-	if err := pkg.Server.ImportDataRepository.Import(c.Request.Context(), &fileName, contentType, &fileSize, file); err != nil {
+	if err := pkg.Server.importDataRepository.Import(c.Request.Context(), &fileName, contentType, &fileSize, file); err != nil {
 		log.Println("mod.Import: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

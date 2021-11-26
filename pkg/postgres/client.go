@@ -37,6 +37,7 @@ func NewClient(db *sql.DB) (*Client, error) {
 	client.FileProcessed = (*FileProcessedService)(&client.common)
 	client.Template = (*TemplateService)(&client.common)
 	client.Querying = (*QueryingService)(&client.common)
+	client.FileConfig = (*FileConfigService)(&client.common)
 
 	return client, nil
 }
@@ -50,6 +51,7 @@ type Client struct {
 	common        service
 	File          *FileService
 	FileProcessed *FileProcessedService
+	FileConfig    *FileConfigService
 	Template      *TemplateService
 	Querying      *QueryingService
 }

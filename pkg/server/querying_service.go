@@ -22,7 +22,7 @@ func (pkg *QueryingService) queryingPOST(c *gin.Context) {
 		log.Println("[WARNING] c.ShouldBindJSON: ", err)
 	}
 
-	data, err := pkg.Server.QueryingRepository.Execute(c.Request.Context(), query.QueryID, query.FormatID, body)
+	data, err := pkg.Server.queryingRepository.Execute(c.Request.Context(), query.QueryID, query.FormatID, body)
 	if err != nil {
 		log.Println("mod.Execute: ", err)
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})

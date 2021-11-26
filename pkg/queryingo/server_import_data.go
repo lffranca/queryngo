@@ -9,13 +9,8 @@ import (
 	"github.com/lffranca/queryngo/pkg/postgres"
 )
 
-func serverImportDataRoute(client config.Server, db *postgres.Client, broker *gkafka.Server) (*importdata.ImportData, error) {
+func serverImportDataRoute(client config.Server, db *postgres.Client, broker *gkafka.Server, awsClient *gaws.Client) (*importdata.ImportData, error) {
 	if client.Routes.ImportData.Enabled {
-		awsClient, err := gaws.New(&client.Routes.ImportData.Bucket)
-		if err != nil {
-			return nil, err
-		}
-
 		uuidClient, err := guuid.New()
 		if err != nil {
 			return nil, err

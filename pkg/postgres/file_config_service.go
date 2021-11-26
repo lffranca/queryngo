@@ -52,19 +52,19 @@ func (pkg *FileConfigService) ListByProcessedID(ctx context.Context, processedID
 
 	if search != nil {
 		argsCount++
-		query += fmt.Sprintf(" and name ilike %d ", argsCount)
+		query += fmt.Sprintf(" and name ilike $%d ", argsCount)
 		args = append(args, *search)
 	}
 
 	if limit != nil {
 		argsCount++
-		query += fmt.Sprintf(" limit %d ", argsCount)
+		query += fmt.Sprintf(" limit $%d ", argsCount)
 		args = append(args, *limit)
 	}
 
 	if offset != nil {
 		argsCount++
-		query += fmt.Sprintf(" offset %d ", argsCount)
+		query += fmt.Sprintf(" offset $%d ", argsCount)
 		args = append(args, *offset)
 	}
 
@@ -80,7 +80,7 @@ func (pkg *FileConfigService) ListByProcessedID(ctx context.Context, processedID
 	}()
 
 	var items []*domain.FileConfig
-	if rows.Next() {
+	for rows.Next() {
 		var itemDB model.FileConfig
 		if err := rows.Scan(
 			&itemDB.ID,

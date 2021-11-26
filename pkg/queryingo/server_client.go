@@ -3,6 +3,8 @@ package queryingo
 import (
 	"fmt"
 	"github.com/lffranca/queryngo/pkg/config"
+	"github.com/lffranca/queryngo/pkg/formatter"
+	"github.com/lffranca/queryngo/pkg/gaws"
 	"github.com/lffranca/queryngo/pkg/gkafka"
 	"github.com/lffranca/queryngo/pkg/postgres"
 	"github.com/lffranca/queryngo/pkg/server"
@@ -13,12 +15,27 @@ import (
 func serverClientRun(wgParent *sync.WaitGroup, client config.Server, db *postgres.Client, broker *gkafka.Server) {
 	defer wgParent.Done()
 
-	queryingMod, err := serverQueryingRoute(client.Routes.Querying, db)
+	awsClient, err := gaws.New(&client.Routes.ImportData.Bucket)
 	if err != nil {
 		log.Panicln(err)
 	}
 
-	importDataMod, err := serverImportDataRoute(client, db, broker)
+	formatterClient, err := formatter.New()
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	queryingMod, err := serverQueryingRoute(client.Routes.Querying, db, formatterClient)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	importDataMod, err := serverImportDataRoute(client, db, broker, awsClient)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	storageMod, err := serverFile(client, db, awsClient, formatterClient)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -27,6 +44,7 @@ func serverClientRun(wgParent *sync.WaitGroup, client config.Server, db *postgre
 		Prefix:               &client.Prefix,
 		QueryingRepository:   queryingMod,
 		ImportDataRepository: importDataMod,
+		StorageRepository:    storageMod,
 		Routes: &server.RoutesOptions{
 			Querying: server.QueryingRouteOptions{
 				Enabled: client.Routes.Querying.Enabled,
