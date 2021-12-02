@@ -45,7 +45,12 @@ func (pkg *File) SaveConfig(ctx context.Context, item *domain.FileConfig) (*doma
 	return pkg.configRepository.Save(ctx, item)
 }
 
-func (pkg *File) ProcessedFileContent(ctx context.Context, id *int) ([][]string, error) {
+var (
+	defaultOffset = 0
+	defaultLimit  = 20
+)
+
+func (pkg *File) ProcessedFileContent(ctx context.Context, id *int, offset, limit *int) ([][]string, error) {
 	processedFile, err := pkg.processedRepository.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -61,7 +66,23 @@ func (pkg *File) ProcessedFileContent(ctx context.Context, id *int) ([][]string,
 		return nil, err
 	}
 
-	return data, nil
+	if offset != nil {
+		defaultOffset = *offset
+	}
+
+	if limit != nil {
+		defaultLimit = *limit
+	}
+
+	if len(data) < defaultLimit {
+		defaultLimit = len(data)
+	}
+
+	if defaultOffset >= defaultLimit {
+		defaultOffset = 0
+	}
+
+	return data[defaultOffset:defaultLimit], nil
 }
 
 func (pkg *File) ListProcessedFile(ctx context.Context, parentID *int, offset, limit *int, search *string) ([]*domain.FileInfoResult, error) {

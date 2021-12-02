@@ -83,9 +83,18 @@ func (pkg *StorageService) fileContentGET(c *gin.Context) {
 		return
 	}
 
+	var paginationParent presenter.PaginationQuery
+	if err := c.ShouldBindQuery(&paginationParent); err != nil {
+		log.Println("c.ShouldBindQuery paginationParent: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	content, err := pkg.Server.storageRepository.ProcessedFileContent(
 		c.Request.Context(),
 		queryParent.ID,
+		paginationParent.Offset,
+		paginationParent.Limit,
 	)
 	if err != nil {
 		log.Println("storageRepository.ProcessedFileContent: ", err)
