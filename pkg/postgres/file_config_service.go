@@ -106,7 +106,8 @@ func (pkg *FileConfigService) Save(ctx context.Context, item *domain.FileConfig)
 
 	query := `
 		insert into storage.file_config (file_processed_id, row_offset, column_date, column_value, columns_dimension)
-		values ($1, $2, $3, $4, $5);
+		values ($1, $2, $3, $4, $5)
+		returning id;
 	`
 
 	var columns string
