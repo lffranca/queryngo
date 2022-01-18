@@ -12,23 +12,6 @@ import (
 type ProcessFileService service
 
 func (pkg *ProcessFileService) ConsumerProcessedFile(ctx context.Context) error {
-	conn, err := kafka.DialLeader(ctx,
-		pkg.Server.network,
-		strings.Join(pkg.Server.brokers, ","),
-		pkg.Server.processedFileTopic, 0)
-	if err != nil {
-		return err
-	}
-
-	_, offsetLast, err := conn.ReadOffsets()
-	if err != nil {
-		return err
-	}
-
-	if err := conn.Close(); err != nil {
-		return err
-	}
-
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   pkg.Server.brokers,
 		Topic:     pkg.Server.processedFileTopic,
@@ -36,6 +19,11 @@ func (pkg *ProcessFileService) ConsumerProcessedFile(ctx context.Context) error 
 		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
 	})
+
+	offsetLast, err := r.ReadLag(ctx)
+	if err != nil {
+		return err
+	}
 
 	if err := r.SetOffset(offsetLast); err != nil {
 		return err
